@@ -7,6 +7,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -25,14 +26,27 @@ public class InvokeApi {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        try {
 
+                            String ip = response.getString("ip");
+                            String country = response.getString("country");
+                            String loc = response.getString("loc");
+                            String city = response.getString("city");
+                            IPResponse ipResponse = new IPResponse(country, loc, city, ip) ;
+                            mainActivityInteractor.onRequestComplete(ipResponse);
+                        }
+                        catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        mainActivityInteractor.onRequestError("Network Problem !");
                     }
                 });
+
+        VolleySingleTone.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
 }
